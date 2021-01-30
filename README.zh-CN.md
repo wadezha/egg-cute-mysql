@@ -1,18 +1,18 @@
 # egg-cute-mysql
 
-Refer to [ali-rds], [egg-mysql]
+MySQL 插件是为 egg 提供 MySQL 数据库访问的功能
 
-## Install
+此插件参考 [ali-rds], [egg-mysql]
+
+## 安装
 
 ```bash
 $ npm i egg-cute-mysql --save
 ```
 
-MySQL Plugin for egg, support egg application access to MySQL database.
+## 配置
 
-## Configuration
-
-Change `${app_root}/config/plugin.js` to enable MySQL plugin:
+通过 `config/plugin.js` 配置启动 MySQL 插件:
 
 ```js
 exports.mysql = {
@@ -21,72 +21,71 @@ exports.mysql = {
 };
 ```
 
-Configure database information in `${app_root}/config/config.default.js`:
+在 `config/config.${env}.js` 配置各个环境的数据库连接信息：
 
-### Simple database instance
+### 单数据源
 
 ```js
 exports.mysql = {
-  // database configuration
+  // 单数据库信息配置
   client: {
     // host
     host: '127.0.0.1',
-    // port
+    // 端口号
     port: '3306',
-    // username
+    // 用户名
     user: 'user',
-    // password
+    // 密码
     password: 'password',
-    // database
+    // 数据库名
     database: 'test',    
   },
-  // load into app, default is open
+  // 是否加载到 app 上，默认开启
   app: true,
-  // load into agent, default is close
+  // 是否加载到 agent 上，默认关闭
   agent: false,
 };
 ```
 
-Usage:
+使用方式：
 
 ```js
-app.mysql.query(sql, values); // you can access to simple database instance by using app.mysql.
+app.mysql.query(sql, values); // 单实例可以直接通过 app.mysql 访问
 ```
 
-
-### Multiple database instance
+### 多数据源
 
 ```js
 exports.mysql = {
   clients: {
-    // clientId, access the client instance by app.mysql.get('clientId')
+    // clientId, 获取client实例，需要通过 app.mysql.get('clientId') 获取
     db1: {
       // host
     host: '127.0.0.1',
-      // port
+      // 端口号
       port: '3306',
-      // username
+      // 用户名
       user: 'user',
-      // password
+      // 密码
       password: 'password',
-      // database
+      // 数据库名
       database: 'test',
     },
     // ...
   },
-  // default configuration for all databases
+  // 所有数据库配置的默认值
   default: {
 
   },
 
-  // load into app, default is open
+  // 是否加载到 app 上，默认开启
   app: true,
-  // load into agent, default is close
+  // 是否加载到 agent 上，默认关闭
   agent: false,
 };
 ```
 
-Usage:
+使用方式：
 
 ```js
 const client1 = app.mysql.get('db1');
@@ -96,12 +95,36 @@ const client2 = app.mysql.get('db2');
 client2.query(sql, values);
 ```
 
-## CRUD user guide
+## 扩展
+
+### app.js
+
+#### app.mysql
+
+如果开启了 `config.mysql.app = true`，则会在 app 上注入 客户端 的 [Singleton 单例](https://github.com/eggjs/egg/blob/master/lib/core/singleton.js)。
+
+```js
+app.mysql.query(sql);
+app.mysql.get('db1').query(sql);
+```
+
+### agent.js
+
+#### agent.mysql
+
+如果开启了 `config.mysql.agent = true`，则会在 agent 上注入 客户端 的 [Singleton 单例](https://github.com/eggjs/egg/blob/master/lib/core/singleton.js)。
+
+```js
+agent.mysql.query(sql);
+agent.mysql.get('db1').query(sql);
+```
+
+## CRUD 使用指南
 
 ### Create
 
 ```js
-// insert
+// 插入
 const result = await app.mysql.insert('insert into posts(title) value(:title)', { title: 'Hello World' });
 const insertSuccess = result === 1;
 ```
@@ -125,7 +148,7 @@ const results = await app.mysql.page('select * from posts',{
 ### Update
 
 ```js
-// update by primary key ID, and refresh
+// 修改数据，将会根据主键 ID 查找，并更新
 const row = {
   id: 123,
   name: 'fengmk2',
@@ -144,12 +167,12 @@ const result = await app.mysql.delete('delete from posts where name=:name', {
 });
 ```
 
-## Transaction
+## 事务
 
-### Manual control
+### 手动控制
 
-- adventage: ```beginTransaction```, ```commit``` or ```rollback``` can be completely under control by developer
-- disadventage: more handwritten code, Forgot catching error or cleanup will lead to serious bug.
+- 优点：beginTransaction, commit 或 rollback 都由开发者来完全控制，可以做到非常细粒度的控制。
+- 缺点：手写代码比较多，不是每个人都能写好。忘记了捕获异常和 cleanup 都会导致严重 bug。
 
 ```js
 const conn = await app.mysql.beginTransaction();
@@ -165,13 +188,13 @@ try {
 }
 ```
 
-###  Automatic control: Transaction with scope
+### 自动控制：Transaction with scope
 
 - API：`*beginTransactionScope(scope, ctx)`
-  - `scope`: A generatorFunction which will execute all sqls of this transaction.
-  - `ctx`: The context object of current request, it will ensures that even in the case of a nested transaction, there is only one active transaction in a request at the same time.
-- adventage: easy to use, as if there is no transaction in your code.
-- disadvantage: all transation will be successful or failed, cannot control precisely
+  - `scope`: 一个 generatorFunction，在这个函数里面执行这次事务的所有 sql 语句。
+  - `ctx`: 当前请求的上下文对象，传入 ctx 可以保证即便在出现事务嵌套的情况下，一次请求中同时只有一个激活状态的事务。
+- 优点：使用简单，不容易犯错，就感觉事务不存在的样子。
+- 缺点：整个事务要么成功，要么失败，无法做细粒度控制。
 
 ```js
 const result = await app.mysql.beginTransactionScope(async (conn) => {
@@ -179,28 +202,26 @@ const result = await app.mysql.beginTransactionScope(async (conn) => {
   await conn.insert(sql, values);
   await conn.update(sql, values);
   return { success: true };
-}, ctx); // ctx is the context of current request, access by `this.ctx`.
+}, ctx); // ctx 是当前请求的上下文，如果是在 service 文件中，可以从 `this.ctx` 获取到
 // if error throw on scope, will auto rollback
 ```
 
-### Literal
+### 表达式(Literal)
+如果需要调用mysql内置的函数（或表达式），可以使用`Literal`。
 
-If you want to call literals or functions in mysql , you can use `Literal`.
-
-#### Inner Literal
-- NOW(): The database system time, you can obtain by `app.mysql.literals.now`.
+#### 内置表达式
+- NOW(): 数据库当前系统时间，通过`app.mysql.literals.now`获取。
 
 ```js
 await app.mysql.insert(sql, {
   create_time: app.mysql.literals.now
 });
 
-// INSERT INTO table(`create_time`) VALUES(NOW())
+// INSERT INTO `$table`(`create_time`) VALUES(NOW())
 ```
 
-#### Custom literal
-
-The following demo showed how to call `CONCAT(s1, ...sn)` funtion in mysql to do string splicing.
+#### 自定义表达式
+下例展示了如何调用mysql内置的`CONCAT(s1, ...sn)`函数，做字符串拼接。
 
 ```js
 const Literal = app.mysql.literals.Literal;

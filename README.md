@@ -112,8 +112,8 @@ const insertSuccess = result === 1;
 // get
 const post = await app.mysql.info('select * from posts where id=:id', { id: 12 });
 // query
-const results = await app.mysql.list('select * from posts :orders',{
-  orders: app.mysql.order([['created_at','desc'], ['id','desc']])
+const results = await app.mysql.list(`select * from posts ${app.mysql.order([['created_at','desc'], ['id','desc']])} limit :limit`,{
+  limit: 2
 });
 
 const results = await app.mysql.page('select * from posts',{

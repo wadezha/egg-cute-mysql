@@ -103,7 +103,7 @@ client2.query(sql, values);
 ```js
 // insert
 const result = await app.mysql.insert('insert into posts(title) value(:title)', { title: 'Hello World' });
-const insertSuccess = result === 1;
+const insertSuccess = !result.insertId;
 ```
 
 ### Read
@@ -117,7 +117,7 @@ const results = await app.mysql.list(`select * from posts ${app.mysql.order([['c
 });
 
 const results = await app.mysql.page('select * from posts',{
-  pageSize: 10,
+  size: 10,
   offset: 0,
 });
 ```
@@ -133,7 +133,7 @@ const row = {
   modifiedAt: app.mysql.literals.now, // `now()` on db server
 };
 const result = await app.mysql.update('update posts set name=:name,other_field=:other_field,modified_at=:modified_at where id=:id', row);
-const updateSuccess = result === 1;
+const updateSuccess = result.changedRows === 1;
 ```
 
 ### Delete

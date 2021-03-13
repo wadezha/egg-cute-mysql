@@ -1,6 +1,6 @@
 {
   "name": "egg-cute-mysql",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "MySQL plugin for egg",
   "eggPlugin": {
     "name": "mysql"

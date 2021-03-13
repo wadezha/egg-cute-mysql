@@ -54,7 +54,7 @@ describe('test/mysql.test.js', function() {
     const users = yield app.mysql.query('select * from npm_auth order by id desc limit 2');
     assert(users.length === 2);
     const rows = yield app.mysql.list(`select * from npm_auth ${app.mysql.order([[ 'id', 'desc' ]])} limit :limit`, {
-      limit: 2
+      limit: 2,
     });
     assert(rows.length === 2);
     assert.deepEqual(rows[0].id, users[0].id);
@@ -64,13 +64,13 @@ describe('test/mysql.test.js', function() {
   it('should update successfully', function* () {
     const user = yield app.mysql.info('select * from npm_auth order by id desc');
     const result = yield app.mysql.update('update npm_auth set user_id=:user_id where id=:id', { id: user.id, userId: `79744-${uid}-update` });
-    assert(result === 1);
+    assert(result.changedRows === 1);
   });
 
   it('should delete successfully', function* () {
     const user = yield app.mysql.info('select * from npm_auth order by id desc');
     const result = yield app.mysql.delete('delete from npm_auth where id=:id', { id: user.id });
-    assert(result === 1);
+    assert(result.affectedRows === 1);
   });
 
   it('should query one success', function* () {
@@ -105,7 +105,7 @@ describe('test/mysql.test.js', function() {
   });
 
   it('should info work on transaction', function* () {
-    const result = yield app.mysql.beginTransactionScope(async (conn) => {
+    const result = yield app.mysql.beginTransactionScope(async conn => {
       const row = await conn.info('select * from npm_auth order by id desc');
       return { row };
     }, {});
@@ -120,11 +120,11 @@ describe('test/mysql.test.js', function() {
       baseDir: 'apps/mysqlapp-multi-client-wrong',
     });
     app2.ready(err => {
-      console.log(err)
+      console.log(err);
       if (err) {
         assert(err.message.includes('ER_ACCESS_DENIED_ERROR'));
       }
-      
+
       done();
     });
   });

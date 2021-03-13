@@ -11,10 +11,10 @@ declare class Operator {
   info(sql?: string, values?: any): Promise<any>;
   list(sql?: string, values?: any): Promise<any>;
   insert(sql?: string, values?: any): Promise<any>;
-  update(sql?: string, values?: any): Promise<number>;
-  delete(sql?: string, values?: any): Promise<number>;
+  update(sql?: string, values?: any): Promise<any>;
+  delete(sql?: string, values?: any): Promise<any>;
   page(sql?: string, values?: any, countSql?: string): Promise<{
-    list: any;
+    rows: any;
     total: number;
   }>;
 }

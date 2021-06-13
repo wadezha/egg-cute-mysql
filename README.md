@@ -38,7 +38,11 @@ exports.mysql = {
     // password
     password: 'password',
     // database
-    database: 'test',    
+    database: 'test',
+
+    size: 20,
+    // Camelcase,Underline
+    selectKey: 'Camelcase',
   },
   // load into app, default is open
   app: true,
@@ -118,7 +122,7 @@ const results = await app.mysql.list(`select * from posts ${app.mysql.order([['c
 
 const results = await app.mysql.page('select * from posts',{
   size: 10,
-  offset: 0,
+  pageNum: 1,
 });
 ```
 

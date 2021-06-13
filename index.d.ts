@@ -52,6 +52,9 @@ interface RDSClientOptions {
   charset?: string;
   connectionLimit?: number;
   queueLimit?: number;
+
+  size?: number;
+  selectKey?: string;
 }
 
 interface EggRDSClientOptions {

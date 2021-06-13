@@ -38,7 +38,11 @@ exports.mysql = {
     // 密码
     password: 'password',
     // 数据库名
-    database: 'test',    
+    database: 'test',
+
+    size: 20,
+    // Camelcase,Underline
+    selectKey: 'Camelcase',
   },
   // 是否加载到 app 上，默认开启
   app: true,
@@ -141,7 +145,7 @@ const results = await app.mysql.list(`select * from posts ${app.mysql.order([['c
 
 const results = await app.mysql.page('select * from posts',{
   size: 10,
-  offset: 0,
+  pageNum: 1,
 });
 ```
 

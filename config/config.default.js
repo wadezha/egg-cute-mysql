@@ -16,7 +16,7 @@ exports.mysql = {
   //   password: 'password',
   //   database: 'database',
   
-  //   size: 20,
+  //   pageSize: 50,
   //   selectKey: 'Underline',
   // },
 

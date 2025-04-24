@@ -53,7 +53,7 @@ interface RDSClientOptions {
   connectionLimit?: number;
   queueLimit?: number;
 
-  size?: number;
+  pageSize?: number;
   selectKey?: string;
 }
 

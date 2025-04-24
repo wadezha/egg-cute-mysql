@@ -40,7 +40,7 @@ exports.mysql = {
     // 数据库名
     database: 'test',
 
-    size: 20,
+    pageSize: 50,
     // Camelcase,Underline
     selectKey: 'Camelcase',
   },
@@ -144,7 +144,7 @@ const results = await app.mysql.list(`select * from posts ${app.mysql.order([['c
 });
 
 const results = await app.mysql.page('select * from posts',{
-  size: 10,
+  pageSize: 10,
   pageNum: 1,
 });
 ```
